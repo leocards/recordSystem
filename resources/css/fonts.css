@@ -1,0 +1,59 @@
+
+/* POPPINS */
+@font-face {
+    font-family: Poppins;
+    src: url(../css/Poppins/Poppins-Regular.ttf);
+}
+@font-face {
+    font-family: Poppins;
+    src: url(../css/Poppins/Poppins-Italic.ttf);
+    font-style: italic;
+}
+@font-face {
+    font-family: Poppins;
+    src: url(../css/Poppins/Poppins-Thin.ttf);
+    font-weight: 300;
+}
+@font-face {
+    font-family: Poppins;
+    src: url(../css/Poppins/Poppins-ExtraLight.ttf);
+    font-weight: 200;
+}
+@font-face {
+    font-family: Poppins;
+    src: url(../css/Poppins/Poppins-Medium.ttf);
+    font-weight: 500;
+}
+@font-face {
+    font-family: Poppins;
+    src: url(../css/Poppins/Poppins-SemiBold.ttf);
+    font-weight: 600;
+}
+@font-face {
+    font-family: Poppins;
+    src: url(../css/Poppins/Poppins-Bold.ttf);
+    font-weight: 700;
+}
+@font-face {
+    font-family: Poppins;
+    src: url(../css/Poppins/Poppins-ExtraBold.ttf);
+    font-weight: 800;
+}
+
+/* GANTARI */
+
+@font-face {
+    font-family: Gantari;
+    src: url(../css/Gantari/Gantari-VariableFont_wght.ttf);
+    font-weight: 800;
+}
+
+:root {
+    --gantari: Gantari;
+    --poppins: Poppins
+}
+
+* {
+    font-family: var(--poppins);
+}
+
