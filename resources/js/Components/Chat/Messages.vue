@@ -1,7 +1,7 @@
 <script setup>
 import SideModal from '../Aside/SideModals/SideModal.vue';
 import Message from '../Icon/Message.vue';
-import SearchInput from '../SearchInput.vue';
+import SearchInput from '../Inputs/SearchInput.vue';
 
 const props = defineProps({
     showMessages: Boolean

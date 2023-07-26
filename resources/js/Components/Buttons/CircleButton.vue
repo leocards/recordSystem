@@ -28,7 +28,7 @@ const bghovers = props.bgHoverDarker?'hover:bg-gray-200':'hover:bg-gray-100'
 <style scoped>
 
 button {
-    @apply w-10 h-10 rounded-full flex items-center justify-center relative pointer-events-auto disabled:hover:pointer-events-none hover:shadow-insetShadow
+    @apply w-10 h-10 rounded-full flex items-center justify-center relative pointer-events-auto disabled:hover:pointer-events-none hover:shadow-insetShadow select-none
 }
 
 span {

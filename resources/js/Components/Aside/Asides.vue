@@ -45,6 +45,7 @@ const isAddOffice = ref(false)
     
     <AddOffice 
         :show="isAddOffice"
+        :record="storeLayout.selectedItem.item"
         @handleClose="isAddOffice = false"
     />
 </template>

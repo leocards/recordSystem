@@ -1,6 +1,6 @@
 <script setup>
-import Xmark from './Icon/Xmark.vue';
-import Search from './Icon/Search.vue';
+import Xmark from '@/Components/Icon/Xmark.vue';
+import Search from '@/Components/Icon/Search.vue';
 import { ref, onMounted } from 'vue';
 import { nextTick } from 'vue';
 

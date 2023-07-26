@@ -1,6 +1,6 @@
 <script setup>
 import Modal from '@/Components/Modal.vue';
-import SearchInput from '@/Components/SearchInput.vue';
+import SearchInput from '@/Components/Inputs/SearchInput.vue';
 import CircleButton from '@/Components/Buttons/CircleButton.vue';
 import Xmark from '@/Components/Icon/Xmark.vue';
 import { ref } from 'vue';

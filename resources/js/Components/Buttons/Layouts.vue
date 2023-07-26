@@ -20,7 +20,7 @@ const clickOutside = () => {
 </script>
 
 <template>
-    <div class="inline-flex ml-auto relative" data-button v-click-outside="clickOutside">
+    <div class="inline-flex ml-auto relative select-none" data-button v-click-outside="clickOutside">
         <Transition name="viewtypes">
             <div class="mr-2.5 flex gap-1" v-if="showViewTypes && mainSize > 740">
                 <CircleButton tooltip_label="Grid layout" @click="layout = 1" :active="layout == 1">

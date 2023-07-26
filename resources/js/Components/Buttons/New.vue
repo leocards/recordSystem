@@ -15,7 +15,7 @@ const props = defineProps({
 <template>
     <button
         data-button
-        :class="[mainSize?'px-2':'px-4']"
+        :class="[mainSize?'px-2.5':'px-4']"
         v-bind:class="margin"
         class="capsule"
     >

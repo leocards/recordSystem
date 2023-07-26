@@ -172,7 +172,7 @@ onMounted(() => {
             <NewBtn 
                 :mainSize="mainSize" 
                 label="New record" 
-                labelPosition="top-10 -left-0"
+                labelPosition="top-11 -left-0"
                 @click="isCreateRecord = true, isEditRecord = false"
             >
                 <New />

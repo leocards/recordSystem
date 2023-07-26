@@ -118,7 +118,7 @@
 
 @layer components {
     .capsule {
-        @apply rounded-full text-sm 3xl:text-base h-10;
+        @apply rounded-full text-sm 3xl:text-base py-2.5;
     }
     .capsule-fit {
         @apply rounded-full text-sm 3xl:text-base h-fit;
