@@ -6,7 +6,8 @@ import { nextTick } from 'vue';
 
 const props = defineProps({
     mainSize: Number,
-    searchLabels: String
+    searchLabels: String,
+    searchVal: String
 })
 
 const emits = defineEmits([
@@ -32,6 +33,8 @@ const clearSearch = (searchVal) => {
 
 onMounted(() => {
     nextTick(() => onSearch())
+    if(props.searchVal)
+        search.value = props.searchVal
 })
 
 </script>
@@ -41,7 +44,7 @@ onMounted(() => {
         <div
             @click="onSearch"
             :class="{ 'ring-1 ring-green-400 ring-offset-1 ring-offset-green-600/10 transition duration-200': searchFocus }"
-            class="rounded-xl h-10 flex items-center px-1 bg-gray-100 dark:bg-neutral-800 cursor-text grow shadow-insetShadow"
+            class="rounded-xl h-10 flex items-center px-1 bg-gray-100/70 dark:bg-neutral-800 cursor-text grow shadow-insetShadow"
             data-search
         >
             <input

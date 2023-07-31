@@ -7,6 +7,10 @@ const props = defineProps({
     margin: {
         type: String,
         default: 'ml-1'
+    },
+    fit: {
+        type: String,
+        default: 'capsule'
     }
 })
 
@@ -15,9 +19,8 @@ const props = defineProps({
 <template>
     <button
         data-button
-        :class="[mainSize?'px-2.5':'px-4']"
+        :class="[mainSize?'px-2.5':'px-4', fit]"
         v-bind:class="margin"
-        class="capsule"
     >
         <span class="text-slate-100 pointer-events-none">
             <slot/>

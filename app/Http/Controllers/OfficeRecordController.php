@@ -4,66 +4,73 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Offices\SearchController;
 use App\Models\OfficeRecord;
+use App\Models\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class OfficeRecordController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function add_records_to_office(Request $request)
     {
         
         try {
             DB::transaction(function () use ($request) {
-                OfficeRecord::create([
-                    'record_id' => $request->record,
-                    'office_id' => $request->office
-                ]);
+                foreach ($request->offices as $key => $value) {
+                    OfficeRecord::create([
+                        'record_id' => $request->record,
+                        'office_id' => $value['id'],
+                        'Due' => $value['due']
+                    ]);
+                }
             });
             return back();
         } catch (\Throwable $th) {
-            dd();
+            dd($th->getMessage());
             return back();
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function search($search = null, Request $request)
+    public function search(Request $request, $search = null, $excludes = null)
     {
-        return SearchController::search($search, $request);
+        if($excludes)
+            $request['exclude'] = array_map(function ($val) {
+            return intval($val);
+            }, explode(',',$excludes));
+
+        return SearchController::search($request, $search);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(OfficeRecord $officeRecord)
+    public function get_tagged_office(Record $officeRecord)
     {
-        //
+        try {
+            return response()->json(
+                OfficeRecord::where('record_id', $officeRecord->id)
+                    ->get()
+                    ->map(function ($office) {
+                        $setOffice = $office->getOfficesTagged;
+                        
+                        return collect([
+                            'id' => $setOffice->id,
+                            'name' => $setOffice->name  
+                        ]);
+                    })
+            );
+        } catch (\Throwable $th) {
+            return response()->json($th->getMessage(), 452);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(OfficeRecord $officeRecord)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, OfficeRecord $officeRecord)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(OfficeRecord $officeRecord)
     {
         //

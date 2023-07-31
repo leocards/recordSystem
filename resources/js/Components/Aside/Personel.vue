@@ -4,7 +4,10 @@ import PersonelFill from '../Icon/PersonelFill.vue';
 import Empty from './Empty.vue'; 
 import New from '../Buttons/New.vue';
 import NewIcon from '../Icon/New.vue';
-import CircleButton from '../Buttons/CircleButton.vue';
+
+const emits = defineEmits([
+    'handleAdd'
+])
 
 </script>
 
@@ -19,6 +22,8 @@ import CircleButton from '../Buttons/CircleButton.vue';
                 margin="ml-auto"
                 :mainSize="948"
                 label="Add"
+                fit="capsule-fit py-[0.400rem]"
+                @click="$emit('handleAdd')"
             >
                 <NewIcon />
             </New>

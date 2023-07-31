@@ -17,7 +17,8 @@ const storeLayout = useLayoutStore()
 
 const props = defineProps({
     show: Boolean,
-    record: Object
+    record: Object,
+    excludes: Array
 })
 
 const emits = defineEmits([
@@ -25,26 +26,31 @@ const emits = defineEmits([
 ])
 
 const search = ref(null)
+const searchValue = ref(null)
 const addOfficeForm = useForm({
     offices: [],
-    record: props.record?props.record.id:null,
+    record: null,
     filters: []
 })
 const isNext = ref(false)
 
 const getSearches = async (val) => {
-    if(!val || val.trim() == '') return search.value = null;
+    searchValue.value = val
 
+    if(!val || val.trim() == '') return search.value = null;
     search.value = 1
 
-    let getSearch = await axios.post(route('or_search', [val]))
+    let getSearch = await axios.post(route('or_search', [val, props.excludes]))
     let response = getSearch.data
 
     response.forEach((res, index) => {
-        if(addOfficeForm.filters.includes(res.id))
+        if(addOfficeForm.filters.includes(res.id)){
             response[index].added = true
-        else
+            response[index].due = null
+        }else{
             response[index].added = false
+            response[index].due = null
+        }
     })
 
     response.length === 0 ? search.value = 2 : search.value = response
@@ -67,9 +73,22 @@ const removeOffice = (index) => {
     search.value[search.value.findIndex(val => val.id == removed)].added = false
 }
 
+const submit = () => {
+    addOfficeForm.post(route('or_new'), {
+        onSuccess: page => {
+            emits('handleClose')
+        },
+        onError: page => {
+            console.log(page)
+        }
+    })
+}
+
 watchEffect(() => {
     if(!props.show) {
-        search.value = null, addOfficeForm.reset(),isNext.value = false
+        search.value = null, addOfficeForm.reset(), isNext.value = false, searchValue.value = null
+    } else {
+        addOfficeForm.record = props.record?props.record.id:null
     }
 })
 
@@ -81,15 +100,24 @@ watchEffect(() => {
         :show="show"
         max-width="md"
     >
-        <div class="p-4 pr-3.5">
+        <div class="p-4 pr-3.5 relative">
             
             <div class="mb-4 text-lg">
                 Add office to " {{ record.name }} "
             </div>
 
-            <div>
+            <div v-if="!isNext">
                 <div class="flex mb-3 pr-0.5">
-                    <SearchInput @handleSearch="debounces" searchLabels="office" />
+                    <SearchInput :searchVal="searchValue" @handleSearch="debounces" searchLabels="office" />
+                </div>
+
+                <div class="flex flex-wrap mbt3 mb-5 border border-slate-700/20 rounded-lg p-1 max-h-[10rem] overflow-y-auto" v-if="addOfficeForm.offices.length > 0">
+                    <AddedTags 
+                        v-for="(item, index) in addOfficeForm.offices"
+                        :index="index"
+                        :item="item"
+                        @handle-remove-office="removeOffice(index)"
+                    />
                 </div>
                 
                 <div class="h-[20rem] flex flex-col overflow-y-hidden">
@@ -115,15 +143,22 @@ watchEffect(() => {
                         <LoadingAnimationVue />
                     </div>
                 </div>
+
+                
             </div>
 
-            <div class="flex flex-wrap mb-3 mt-5 border border-slate-700/10 rounded-lg p-1 max-h-[10rem] overflow-y-auto" v-if="addOfficeForm.offices.length > 0">
-                <AddedTags 
-                    v-for="(item, index) in addOfficeForm.offices"
-                    :index="index"
-                    :item="item"
-                    @handle-remove-office="removeOffice(index)"
-                />
+            <div class="h-[25rem] flex flex-col overflow-y-hidden mt-5" v-else>
+                <div class="grow overflow-y-auto pr-0.5">
+                    <div class="rounded-xl flex flex-col p-3 borde r border-slate-700/20 bg-gray-100 mt-2 text-sm" v-for="(item, index) in addOfficeForm.offices" :key="index">
+                        <div class="mb-2 text-base  ">
+                            {{ item.name }}
+                        </div>
+                        <div class="mt-auto w-full">
+                            <div>Due</div>
+                            <input type="date" name="" id="" v-model="item.due" class="text-sm rounded-lg w-full mt-1 border-gray-300 focus:border-green-500 focus:ring-green-600 ring-insest">
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="flex flex-row-reverse justify-between mt-3 pr-0.5">
@@ -138,14 +173,19 @@ watchEffect(() => {
                     <PrimaryButton
                         class="ml-3"
                         :disabled="addOfficeForm.offices.length === 0 || addOfficeForm.processing"
+                        @click="submit"
                     >
                         Add office
                     </PrimaryButton>
                 </div>
                 
-                <button class="capsule hover:bg-gray-100 transition-150 text-xs font-medium px-6 
-                disabled:opacity-40 disabled:pointer-events-none select-none" v-if="addOfficeForm.offices.length !== 0">
-                    Next
+                <button 
+                    class="capsule hover:bg-gray-100 transition-150 text-xs font-medium px-6 
+                    disabled:opacity-40 disabled:pointer-events-none select-none" 
+                    v-if="addOfficeForm.offices.length !== 0"
+                    @click="isNext = !isNext"
+                >
+                    {{ isNext ? 'Back':'Next' }}
                 </button>
             </div>
         </div>

@@ -11,19 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('office_records', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('record_id');
-            $table->foreign('record_id')
+        Schema::create('personnels', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')
+            ->nullable()
+            ->constrained()
+            ->nullOnDelete();
+            $table->uuid('office_record_id');
+            $table->foreign('office_record_id')
                 ->references('id')
                 ->on('records')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
-            $table->foreignId('office_id')
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
-            $table->date('Due')->nullable();
+            $table->string('access')->nullable();
+            $table->string('role')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -34,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('office_records');
+        Schema::dropIfExists('personnels');
     }
 };

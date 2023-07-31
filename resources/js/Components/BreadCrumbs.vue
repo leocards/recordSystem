@@ -6,28 +6,20 @@ import { useLayoutStore } from "@/Store/LayoutStore";
 
 const page = usePage().props;
 const storeLayout = useLayoutStore()
+const props = defineProps({
+    showBack: Boolean
+})
+const emits = defineEmits([
+    'handleBack'
+])
 
-const route_back = () => {
-    if (page.crumbs.length > 0) {
-        router.get(
-            route("records.open", [page.crumbs[page.crumbs.length - 1].id])
-        );
-    } else {
-        router.get(route("records"));
-    }
-};
-
-const routeTo = (id) => {
-    router.get(route("records.open", [id]));
-};
 </script>
 
 <template>
     <div class="flex items-center">
-        <BackButton class="mr-2" v-if="page.current" @click="route_back" />
-        <Link :href="route('records')" @click="storeLayout.closeAside" class="hover:text-[#15a868] transition duration-150" v-if="page.current">Records</Link>
-        <div v-else>Records</div>
-        <RightCrumbs :stroke="3" v-if="page.crumbs" />
+        <BackButton class="mr-2" v-if="showBack"  @click="$emit('handleBack')" />
+        
+        <slot />
 
         <ul
             class="ml-2 text-base font-normal flex items-center"
@@ -37,7 +29,7 @@ const routeTo = (id) => {
                 class="flex items-center max-w-[10rem] min-w-[4rem] cursor-pointer select-none group"
                 v-for="(item, index) in page.crumbs"
                 :key="index"
-                @click="routeTo(item.id)"
+                @click="storeLayout.getRouteTo(route('records.open', [item.id]))"
             >
                 <div class="p-1 group-hover:bg-gray-200 transition duration-200 rounded-md">
                     <div class="Oneline">{{ item.name }}</div>

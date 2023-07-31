@@ -14,6 +14,7 @@ export const useLayoutStore = defineStore("Layout", () => {
     const isRepo = ref(true)
     const preUpload = ref(false)
     const inputs = ref(null)
+    const previousComponent = ref(null)
     const selectedItem = useForm({
         item: null
     })
@@ -42,10 +43,16 @@ export const useLayoutStore = defineStore("Layout", () => {
 
     const preventDefaults = e => e.preventDefault()
 
-    const getRouteTo = (route, preserve_scroll = true) => {
-        router.get(route, {}, {
+    const getRouteTo = (route, preserve_scroll = true, replace = true) => {
+        router.visit(route, {
+            method: 'get',
             preserveScroll: preserve_scroll
         })
+    }
+
+    const asideButtons = header => {
+        aside.header = header
+        openAside()
     }
 
     const onUnloadPage = (e) => {
@@ -77,10 +84,12 @@ export const useLayoutStore = defineStore("Layout", () => {
         windowSize,
         toggleRepo,
         closeAside,
+        asideButtons,
         selectedItem,
         onUnloadPage,
         isRepository,
         notifications,
         preventDefaults,
+        previousComponent,
     };
 });

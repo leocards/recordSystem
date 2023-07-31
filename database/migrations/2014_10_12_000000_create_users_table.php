@@ -21,8 +21,8 @@ return new class extends Migration
             $table->boolean('active')->nullable();
             $table->string('avatar')->nullable();
             $table->rememberToken();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

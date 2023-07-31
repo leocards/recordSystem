@@ -2,7 +2,7 @@
 import GridView from '@/Layouts/GridView.vue';
 import GridCards from '@/Layouts/GridCards.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router, usePage, Link } from '@inertiajs/vue3';
 import MoreV from '@/Components/Icon/MoreV.vue';
 import New from '@/Components/Icon/New.vue';
 import { useLayoutStore } from '@/Store/LayoutStore';
@@ -12,8 +12,15 @@ import Buttons from '@/Components/Records/Buttons.vue';
 import Layouts from '@/Components/Buttons/Layouts.vue';
 import NewModal from '@/Components/Offices/New.vue';
 import { handleClickElement } from '@/Store/JS/windowElement'
+import BreadCrumbs from '@/Components/BreadCrumbs.vue';
+import RightCrumbs from "@/Components/Icon/RightCrumbs.vue";
+import Empty from '@/Components/Aside/Empty.vue';
+import OfficeFill from '@/Components/Icon/OfficeFill.vue';
+import { __conditioned_array } from '@/Store/JS/Arrays';
+import RecordsFill from '@/Components/Icon/RecordsFill.vue';
 
 const storeLayout = useLayoutStore()
+const page = usePage().props
 
 const mainSize = ref(0)
 const selectedItem = ref(null)
@@ -31,28 +38,10 @@ const selectItem = item => {
     selectedItem.value = item.id.toString()
     storeLayout.selectedItem.item = item
 }
-const TrackDocument = () => {
-    storeLayout.aside.header = 'Track document'
-    storeLayout.openAside()
+const getDelete = () => {
+    router.post(route('offices.delete', [selectedItem.value]))
 }
 
-// Buttons methods
-const showDetails = () => {
-    storeLayout.aside.header = 'Details'
-    storeLayout.openAside()
-}
-const showComments = () => {
-    storeLayout.aside.header = 'Comments'
-    storeLayout.openAside()
-}
-const showPersonnel = () => {
-    storeLayout.aside.header = 'Personnel'
-    storeLayout.openAside()
-}
-const showTaggedOffice = () => {
-    storeLayout.aside.header = 'Tagged Office'
-    storeLayout.openAside()
-}
 
 const clicksOutside = e => {
     const attribs = ['data-record', 'data-button', 'data-search', 'data-aside']
@@ -62,9 +51,19 @@ const clicksOutside = e => {
     })
 }
 
+const route_back = () => {
+    if (page.crumbs.length > 1) {
+        router.get( route("records.open", [page.crumbs[page.crumbs.length - 1].id]) );
+    } else if(page.crumbs.length === 1) {
+        // office link here
+    } else router.get(route("records"));
+};
+
 onMounted(() => {
     storeLayout.closeAside()
     storeLayout.selectedItem.reset()
+
+    storeLayout.previousComponent = usePage().component
 })
 </script>
 
@@ -75,10 +74,26 @@ onMounted(() => {
         @handleClick="clicksOutside"
         @handleGetMainSize="getMainSize"
         @edit="isCreateOffice = true, isEditOffice = true"
-        @track="TrackDocument"
+        @track="storeLayout.asideButtons('Track document')"
     >
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Offices</h2>
+            <h2 class="font-bold text-xl text-slate-800 leading-tight flex items-center">
+                <BreadCrumbs 
+                    :show-back="($page.props.current || $page.props.office) != null"
+                >
+                    <Link :href="route('offices')" @click="storeLayout.closeAside" class="hover:text-[#15a868] transition duration-150" v-if="$page.props.current || $page.props.office">Offices</Link>
+                    <div v-else>Offices</div>
+                    <RightCrumbs :stroke="3" v-if="$page.props.crumbs || $page.props.office" />
+
+                    <div class="font-semibold text-lg" v-if="$page.props.office">
+                        <Link :href="route('offices')" @click="storeLayout.closeAside" class="hover:text-[#15a868] transition duration-150" v-if="$page.props.crumbs">
+                            {{ $page.props.office.name }}
+                        </Link>
+                        <div v-else>{{ $page.props.office.name }}</div>
+                    </div>
+                    <RightCrumbs :stroke="3" v-if="$page.props.crumbs" />
+                </BreadCrumbs>
+            </h2>
         </template>
 
         <template #contentHeader>
@@ -98,12 +113,13 @@ onMounted(() => {
                 :mainSize="mainSize"
                 :exlcudes="[4]"
                 @handleEdit="isCreateOffice = true, isEditOffice = true"
-                @handleDetails="showDetails"
-                @handlePersonel="showPersonnel"
+                @handleDetails="storeLayout.asideButtons('Details')"
+                @handlePersonel="storeLayout.asideButtons('Personnel')"
+                @handleDelete="getDelete"
             />
         </template>
 
-        <div class="">
+        <div class="h-full flex flex-col">
             <GridView>
                 <GridCards 
                     v-for="(item, index) in $page.props.offices" 
@@ -112,18 +128,33 @@ onMounted(() => {
                     styles="recordCards" 
                     @click="selectItem(item)"
                     @contextmenu="selectItem(item)"
+                    @dblclick="
+                        router.visit(route('offices', [item.id]), {
+                            method: 'get',
+                            data: {
+                                open: true
+                            }
+                        })
+                    "
                 >
                     <div 
-                        class="pointer-events-none h-full flex items-center px-2" 
+                        class="pointer-events-none h-full flex items-center px-3" 
                     >
                         <div class="Oneline pointer-events-none " v-text="item.name"></div>
                     </div>
                 </GridCards>
             </GridView>
 
-            <GridView v-if="false">
-                <GridCards v-for="(item, index) in 10" :key="index" styles="recordCards">
-                    
+            <div class="px-2 mt-2" v-if="$page.props.records">
+                Records
+            </div>
+            <GridView>
+                <GridCards v-for="(item, index) in $page.props.records" :key="index" styles="recordCards">
+                    <div 
+                        class="pointer-events-none h-full flex items-center px-3" 
+                    >
+                        <div class="Oneline pointer-events-none " v-text="item.name"></div>
+                    </div>
                 </GridCards>
             </GridView>
 
@@ -155,6 +186,18 @@ onMounted(() => {
 
                 </GridCards>
             </GridView>
+
+            <Empty 
+                :label="($page.props.office?'No records added':'No office added')"
+                size="3xl"
+                v-if="(!$page.props.offices||__conditioned_array($page.props.offices, '==', 0)) && (!$page.props.records||__conditioned_array($page.props.records, '==', 0))"
+            >
+                <OfficeFill size="max4" />
+                <div class=" text-slate-600 absolute translate-y-[115%] translate-x-[60%]" 
+                v-if="(!$page.props.records||__conditioned_array($page.props.records, '==', 0)) && $page.props.office">
+                    <RecordsFill size="4xl" />
+                </div>
+            </Empty>
 
             <NewModal 
                 :show="isCreateOffice" 

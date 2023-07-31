@@ -9,10 +9,11 @@ import NewRecord from '@/Components/Records/New.vue';
 import BreadCrumbs from "@/Components/BreadCrumbs.vue";
 import Buttons from '@/Components/Records/Buttons.vue';
 import Layouts from '@/Components/Buttons/Layouts.vue';
+import RightCrumbs from "@/Components/Icon/RightCrumbs.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { ref, onMounted } from "vue";
 import { useLayoutStore } from "@/Store/LayoutStore";
-import { Head, router, usePage } from "@inertiajs/vue3";
+import { Head, router, usePage, Link } from "@inertiajs/vue3";
 import ListView from "@/Layouts/ListView.vue";
 import { handleClickElement } from '@/Store/JS/windowElement'
 
@@ -77,13 +78,6 @@ const onContext = e => {
     }
 }
 
-const open_record = id => {
-    router.visit(route('records.open', [id]), {
-        method: 'get',
-        replace: true
-    })
-}
-
 const TrackDocument = () => {
     storeLayout.aside.header = 'Track document'
     storeLayout.openAside()
@@ -107,11 +101,23 @@ const showTaggedOffice = () => {
     storeLayout.openAside()
 }
 
+const route_back = () => {
+    if (page.crumbs.length > 0) {
+        router.get(
+            route("records.open", [page.crumbs[page.crumbs.length - 1].id])
+        );
+    } else {
+        router.get(route("records"));
+    }
+};
+
 onMounted(() => {
-    if(usePage().component != 'Record') {
+    if(storeLayout.previousComponent != 'Record') {
         storeLayout.closeAside()
         storeLayout.selectedItem.reset()
     }
+
+    storeLayout.previousComponent = usePage().component
 
     if(page.current){
         selectItem(page.current)
@@ -133,7 +139,15 @@ onMounted(() => {
     >
         <template #header>
             <h2 class="font-bold text-xl text-slate-800 leading-tight flex items-center">
-                <BreadCrumbs />
+                <BreadCrumbs 
+                    :show-back="page.current != null"
+                    @handle-back="route_back"
+                >
+                    <Link :href="route('records')" @click="storeLayout.closeAside" class="hover:text-[#15a868] transition duration-150" v-if="page.current">Records</Link>
+                    <div v-else>Records</div>
+                    <RightCrumbs :stroke="3" v-if="page.crumbs" />
+                    
+                </BreadCrumbs>
             </h2>
         </template>
 
@@ -181,6 +195,7 @@ onMounted(() => {
             <Layouts :mainSize="mainSize" />
 
             <Buttons 
+                :exlcudes="[3]"
                 :mainSize="mainSize"
                 :selects="selectedItem"
                 @handleEdit="isCreateRecord = true, isEditRecord = true"
@@ -191,20 +206,20 @@ onMounted(() => {
         </template>
 
         <div class="">
-            <GridView gridSize="smd" >
+            <GridView >
                 <GridCards 
-                    v-for="(item, index) in $page.props.records" 
+                    v-for="(item, index) in usePage().props.records" 
                     :key="index" 
                     :active="selectedItem == item.id"
                     styles="recordCards"
                     @click="selectItem(item)"
                     @contextmenu="selectItem(item)"
                     @handle-context="storeLayout.toggleRepo(true)"
-                    @dblclick="open_record(item.id)"
+                    @dblclick="storeLayout.getRouteTo(route('records.open', [item.id]), false)"
                 >
 
                     <div 
-                        class="pointer-events-none h-full flex items-center px-2" 
+                        class="pointer-events-none h-full flex items-center px-3" 
                     >
                         <div class="Oneline pointer-events-none " v-text="item.name"></div>
                     </div>

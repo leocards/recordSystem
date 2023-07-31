@@ -5,7 +5,7 @@ import Upload from '@/Components/Icon/Upload.vue';
 import GridCards from '@/Layouts/GridCards.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { ref, onMounted } from "vue";
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { useLayoutStore } from '@/Store/LayoutStore';
 import New from "@/Components/Buttons/New.vue";
 import Layouts from "@/Components/Buttons/Layouts.vue";
@@ -27,6 +27,9 @@ const clicksOutside = e => {
 onMounted(() => {
     storeLayout.closeAside()
     storeLayout.selectedItem.reset()
+
+    storeLayout.previousComponent = usePage().component
+
 })
 
 </script>

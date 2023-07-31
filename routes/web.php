@@ -5,6 +5,7 @@ use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\OfficeRecordController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,9 +37,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::controller(OfficeController::class)->group(function () {
         Route::prefix('offices')->group(function () { 
-            Route::get('/', 'index')->name('offices'); 
+            Route::get('/{office?}', 'index')->name('offices'); 
+            Route::get('/v/{office}', 'index')->name('offices.open');
             Route::post('/new/{office?}', 'create')->name('offices.new'); 
             Route::post('/update/{office}', 'update')->name('offices.update'); 
+            Route::post('/delete/{office}', 'delete')->name('offices.delete'); 
             Route::get('/repository/{current}', 'open_repository')->name('offices.repo'); 
         });
     });
@@ -47,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('records')->group(function () {
             Route::get('/', 'index')->name('records');
             Route::get('/r/{record?}', 'open_record')->name('records.open');
+
             Route::post('/new/{record?}', 'create')->name('records.new');
             Route::post('/update/{record}', 'update')->name('records.update');
         });
@@ -54,7 +58,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::controller(OfficeRecordController::class)->group(function () {
         Route::prefix('officeRecords')->group(function () {
-            Route::post('/search/{search?}', 'search')->name('or_search');
+            Route::get('/getTaggedOffice/{officeRecord}', 'get_tagged_office')->name('or_taaged_office');
+            Route::post('/search/{search?}/ex/{excludes?}', 'search')->name('or_search');
             Route::post('/new', 'add_records_to_office')->name('or_new');
         });
     });
@@ -66,14 +71,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         });
     });
+
+    Route::controller(UserController::class)->group(function () {
+        Route::prefix('users')->group(function () {
+            Route::get('/', 'index')->name('users');
+            Route::post('/search/{search?}', 'userSearch')->name('users.search');
+        });
+    });
     
     Route::get('/task', function () {
         return Inertia::render('Tasks');
     })->name('task');
-    
-    Route::get('/users', function () {
-        return Inertia::render('Users');
-    })->name('users');
 
 });
 

@@ -1,16 +1,19 @@
 <script setup>
-import Office from '../Icon/Office.vue';
-import OfficeFill from '../Icon/OfficeFill.vue';
-import Records from '../Icon/Records.vue';
-import RecordsFill from '../Icon/RecordsFill.vue';
-import Documents from '../Icon/Documents.vue';
-import DocumentsFill from '../Icon/DocumentsFill.vue';
-import Dashboard from '../Icon/Dashboard.vue';
-import DashboardFill from '../Icon/DashboardFill.vue';
+import Office from '@/Components/Icon/Office.vue';
+import OfficeFill from '@/Components/Icon/OfficeFill.vue';
+import Records from '@/Components/Icon/Records.vue';
+import RecordsFill from '@/Components/Icon/RecordsFill.vue';
+import Documents from '@/Components/Icon/Documents.vue';
+import DocumentsFill from '@/Components/Icon/DocumentsFill.vue';
+import Dashboard from '@/Components/Icon/Dashboard.vue';
+import DashboardFill from '@/Components/Icon/DashboardFill.vue';
 import NavLink from '@/Components/NavLink.vue';
 import Pinned from '@/Components/Buttons/Pinned.vue';
 import PinnedDocuments from './PinnedDocuments.vue';
 import { ref } from 'vue';
+import User from '@/Components/Icon/User.vue';
+import UserFill from '@/Components/Icon/UserFill.vue';
+
 
 const props = defineProps({
     winSize: Number
@@ -57,6 +60,15 @@ const array = ref([])
                     <DocumentsFill v-else/>
                 </span>
                 <div class="sideLabel">Documents</div>
+            </div>
+        </NavLink>
+        <NavLink :href="route('users')" :active="$page.url.startsWith('/users')" class="relative group link">
+            <div class="flex items-center gap-2 lg:mx-2 pointer-events-none">
+                <span :class="{ 'text-slate-50':$page.url.startsWith('/users') }">
+                    <User v-if="!$page.url.startsWith('/users')"/>
+                    <UserFill v-else/>
+                </span>
+                <div class="sideLabel">Users</div>
             </div>
         </NavLink>
 

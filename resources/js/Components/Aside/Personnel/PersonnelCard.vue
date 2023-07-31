@@ -1,5 +1,6 @@
 <script setup>
 import PrimaryButton from '@/Components/Buttons/PrimaryButton.vue';
+import User from '@/Components/Icon/User.vue';
 
 const props = defineProps({
     item: Object,
@@ -18,7 +19,10 @@ const emits = defineEmits([
         class="h-12 text-sm px-4 flex flex-col hover:bg-gray-200 transition-150 select-none"
     >
         <div class="flex grow items-center">
-            <div class="Oneline grow"> {{ item.name }} </div>
+            <div class="text-slate-600 flex items-center justify-center w-8 h-8 rounded-full">
+                <User size="lg" :stroke="1.2" />
+            </div>
+            <div class="Oneline grow ml-2"> {{ item.name }} </div>
             <PrimaryButton 
                 padding="py-1.5 px-3"
                 @click="$emit('handleGetOffice')"

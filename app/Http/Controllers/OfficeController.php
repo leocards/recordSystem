@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Office;
+use App\Models\OfficeRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -13,11 +14,36 @@ class OfficeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Office $office, Request $request)
     {
-        return Inertia::render("Office", [
-            'offices' => Office::all()
-        ]);
+        if(!$request->open)
+            return Inertia::render("Office", [
+                'offices' =>
+                    Office::all()
+                        ->map(function ($office) {
+                            return collect([
+                                'id' => $office->id,
+                                'name' => $office->name,
+                                'type' => 'office'
+                            ]);
+                        })
+            ]);
+        else 
+            return Inertia::render("Office", [
+                'office' => collect(['id'=>$office->id, 'name'=>$office->name]),
+                'records' =>
+                    OfficeRecord::where('office_id', $office->id)
+                        ->get()
+                        ->map(function ($office) {
+                            $setRecord = $office->getOfficesRecords;
+
+                            return collect([
+                                'id' => $setRecord->id,
+                                'name' => $setRecord->name,
+                                'type' => 'record'
+                            ]);
+                        })
+            ]);
     }
 
     public function _validation_(Request $request, Office $office = null)
@@ -26,9 +52,9 @@ class OfficeController extends Controller
             'name' => ['required', 'max:254', 
                 Rule::unique('offices')->where(function ($query) use ($request, $office) {
                     if($office)
-                        $query->whereNot('id', $office->id)->where('name', $request->name);
+                        $query->whereNot('id', $office->id)->where('name', $request->name)->whereNull('deleted_at');
                     else
-                        $query->where('name', $request->name);
+                        $query->where('name', $request->name)->whereNull('deleted_at');
                 }) 
             ]
         ], [
@@ -78,6 +104,12 @@ class OfficeController extends Controller
             DB::rollBack();
             dd();
         }
+    }
+
+    public function delete(Office $office) {
+        $office->delete();
+
+        return back();
     }
 
     /**

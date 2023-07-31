@@ -1,7 +1,6 @@
 <script setup>
 import { computed } from 'vue';
 
-
 const props = defineProps({
     size: {
         type: String,
@@ -23,6 +22,9 @@ const iconSize = computed(() => {
         max: 'w-20 h-20',
         max2: 'w-24 h-24',
         max3: 'w-28 h-28',
+        max4: 'w-36 h-36',
+        max5: 'w-44 h-44',
+        max6: 'w-52 h-52',
     }[props.size]
 })
 </script>

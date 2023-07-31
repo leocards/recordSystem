@@ -32,7 +32,7 @@ const props = defineProps({
                         class="pointer-events-none Oneline font-medium" 
                         v-text="storeLayout.selectedItem.item?storeLayout.selectedItem.item.name:'Header Content'"
                     ></div>
-                    <CircleButton tooltip_label="Close" class="ml-auto pointer-events-auto shrink-0" @click="storeLayout.closeAside">
+                    <CircleButton tooltip_label="Close" class="ml-auto pointer-events-auto shrink-0 z-20" @click="storeLayout.closeAside">
                         <Xmark />
                     </CircleButton>
                 </div>

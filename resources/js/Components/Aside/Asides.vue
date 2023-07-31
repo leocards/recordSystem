@@ -6,12 +6,19 @@ import Personel from '@/Components/Aside/Personel.vue';
 import TaggedOffice from '@/Components/Aside/TaggedOffice.vue';
 import Track from '@/Components/Aside//Track.vue';
 import AsideTransitions from './AsideTransitions.vue';
-import AddOffice from './TagOffice.vue/AddOffice.vue';
+import AddOffice from './TagOffice/AddOffice.vue';
 import { ref } from 'vue';
+import AddPersonel from '@/Components/Aside/Personnel/AddPersonel.vue' 
 
 const storeLayout = useLayoutStore()
 
 const isAddOffice = ref(false)
+const isAddPersonnel = ref(false)
+const excludeTags = ref([])
+
+const getExcludeTagged = ex => {
+    excludeTags.value = ex
+}
 
 </script>
 
@@ -25,13 +32,17 @@ const isAddOffice = ref(false)
         </AsideTransitions>
         <AsideTransitions>
             <div class="grow inline-flex flex-col overflow-y-auto" data-aside v-if="storeLayout.aside.header == 'Personnel'">
-                <Personel />
+                <Personel 
+                    @handleAdd="isAddPersonnel = true"
+                />
             </div>
         </AsideTransitions>
         <AsideTransitions>
             <div class="grow inline-flex flex-col overflow-y-auto" data-aside v-if="storeLayout.aside.header == 'Tagged Office'">
                 <TaggedOffice 
                     @handleAdd="isAddOffice = true"
+                    @handleExcludes="getExcludeTagged"
+                    :record="storeLayout.selectedItem.item"
                 />
             </div>
         </AsideTransitions>
@@ -46,6 +57,12 @@ const isAddOffice = ref(false)
     <AddOffice 
         :show="isAddOffice"
         :record="storeLayout.selectedItem.item"
+        :excludes="excludeTags"
         @handleClose="isAddOffice = false"
+    />
+    <AddPersonel 
+        :show="isAddPersonnel"
+        :personnel="storeLayout.selectedItem.item"
+        @handleClose="isAddPersonnel = false"
     />
 </template>

@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useLayoutStore } from '@/Store/LayoutStore';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { onMounted } from 'vue';
 
 const storeLayout = useLayoutStore()
@@ -9,6 +9,9 @@ const storeLayout = useLayoutStore()
 onMounted(() => {
     storeLayout.closeAside()
     storeLayout.selectedItem.reset()
+
+    storeLayout.previousComponent = usePage().component
+
 })
 
 </script>
@@ -21,7 +24,7 @@ onMounted(() => {
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard</h2>
         </template>
 
-        <div class="p-3">
+        <div class="p-3" v-if="false">
             <div class="max-w- 4xl w-full rounded-lg h-36 sm:h-60 overflow-hidden relative shadow">
                 <img src="../../../public//files/DNSC_thumbnail.png" class="object-cover w-full h-full opacity-40">
                 <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-800 to-yellow-200/70 opacity-60 z-10" ></div>

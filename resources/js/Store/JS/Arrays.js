@@ -30,6 +30,7 @@ export const __conditioned_array = (array, condition, number) => {
         
     } catch (e) {
         console.error(e)
+        return false
     }
 };
 

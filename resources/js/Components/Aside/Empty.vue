@@ -17,7 +17,7 @@ const emptySize = computed(() => {
         md: 'w-56 h-56',
         lg: 'w-64 h-64',
         xl: 'w-72 h-72',
-        '2xl': 'w-86 h-86',
+        '2xl': 'w-80 h-80',
         '3xl': 'w-96 h-96',
     }[props.size]
 })

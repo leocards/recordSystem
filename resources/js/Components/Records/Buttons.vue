@@ -24,6 +24,7 @@ const emits = defineEmits([
     'handleDetails',
     'handlePersonel',
     'handleTaggedOffice',
+    'handleDelete'
 ])
 
 const show = ref(false)
@@ -76,6 +77,7 @@ const clickOutside = () => {
         <CircleButton 
             v-if="(selects && (!$page.props.current || $page.props.current.id != selects)) && mainSize >= 530 && !exlcudes.includes(5)" 
             tooltip_label="Remove"
+            @click="$emit('handleDelete')"
         >
             <Trash />
         </CircleButton>

@@ -4,10 +4,40 @@ import OfficeFill from '../Icon/OfficeFill.vue';
 import Empty from './Empty.vue';
 import New from '../Buttons/New.vue';
 import NewIcon from '../Icon/New.vue';
+import { ref } from 'vue';
+import { __conditioned_array } from '@/Store/JS/Arrays'
+import { onBeforeMount } from 'vue';
+import { watchEffect } from 'vue';
+import OfficeSmall from '@/Components/Icon/OfficeSmall.vue';
+
+const props = defineProps({
+    record: Object
+})
 
 const emits = defineEmits([
-    'handleAdd'
+    'handleAdd',
+    'handleExcludes'
 ])
+
+const tagged = ref(null)
+
+onBeforeMount(() => {
+    watchEffect(() => {
+        if(props.record){
+            axios.get(route('or_taaged_office', [props.record.id]))
+            .then(res => {
+                let response = res.data
+                tagged.value = response
+
+                let newRes = response.map(({id}) => {
+                    return id
+                })
+
+                emits('handleExcludes', newRes)
+            })
+        }
+    })
+})
 
 </script>
 
@@ -21,6 +51,7 @@ const emits = defineEmits([
                 margin="ml-auto"
                 :mainSize="948"
                 label="Add"
+                fit="capsule-fit py-[0.400rem]"
                 @click="$emit('handleAdd')"
             >
                 <NewIcon />
@@ -37,14 +68,20 @@ const emits = defineEmits([
                 </div>
             </div>
 
-            <div class="rounded-2xl bg-gray-100 overflow-hidden" v-if="false">
+            <div class="rounded-2xl bg-gray-100 overflow-hidden" v-if="tagged && __conditioned_array(tagged, '>', 0)">
                 
-                <div class="hover:bg-gray-200/80 pointer-events-auto transition-200 rounded-lg h-16" v-for="(item, index) in 10" :key="index" data-aside></div>
+                <div class="hover:bg-gray-200/80 pointer-events-auto transition-200 rounded-lg h-12 flex items-center px-4 cursor-default" v-for="(item, index) in tagged" :key="index" data-aside>
+                    <OfficeSmall />
+                    <div class="Oneline ml-2 pointer-events-none">
+                        {{ item.name }}
+                    </div>
+                </div>
 
             </div>
 
             <Empty
                 label="No office added"
+                v-else
             >
                 <OfficeFill size="max2" />
             </Empty>

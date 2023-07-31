@@ -74,8 +74,8 @@ watchEffect(() => {
         if (page.current) {
             recordForm.parent = page.current.id
         }
-
-
+    }else {
+        recordForm.clearErrors()
     }
 })
 
