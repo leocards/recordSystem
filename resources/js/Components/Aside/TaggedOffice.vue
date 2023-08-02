@@ -8,10 +8,12 @@ import { ref } from 'vue';
 import { __conditioned_array } from '@/Store/JS/Arrays'
 import { onBeforeMount } from 'vue';
 import { watchEffect } from 'vue';
-import OfficeSmall from '@/Components/Icon/OfficeSmall.vue';
+import TaggedCard from './TagOffice/TaggedCard.vue';
+import LoadingAnimation from '../LoadingAnimation.vue';
 
 const props = defineProps({
-    record: Object
+    record: Object,
+    added: Object
 })
 
 const emits = defineEmits([
@@ -21,9 +23,15 @@ const emits = defineEmits([
 
 const tagged = ref(null)
 
+const removeOffice = index => {
+    tagged.value.splice(index, 1)
+}
+
 onBeforeMount(() => {
     watchEffect(() => {
         if(props.record){
+            tagged.value = null
+
             axios.get(route('or_taaged_office', [props.record.id]))
             .then(res => {
                 let response = res.data
@@ -37,6 +45,12 @@ onBeforeMount(() => {
             })
         }
     })
+})
+
+watchEffect(() => {
+    if(props.added.hasNew) {
+        tagged.value.push(...props.added.new)
+    }
 })
 
 </script>
@@ -70,21 +84,20 @@ onBeforeMount(() => {
 
             <div class="rounded-2xl bg-gray-100 overflow-hidden" v-if="tagged && __conditioned_array(tagged, '>', 0)">
                 
-                <div class="hover:bg-gray-200/80 pointer-events-auto transition-200 rounded-lg h-12 flex items-center px-4 cursor-default" v-for="(item, index) in tagged" :key="index" data-aside>
-                    <OfficeSmall />
-                    <div class="Oneline ml-2 pointer-events-none">
-                        {{ item.name }}
-                    </div>
-                </div>
+                <TaggedCard :lastItem="index !== tagged.length-1"  v-for="(item, index) in tagged" :index="index" :item="item" @removeOffice="removeOffice" />
 
             </div>
 
             <Empty
                 label="No office added"
-                v-else
+                v-if="Array.isArray(tagged) ? tagged.length == 0 : false"
             >
                 <OfficeFill size="max2" />
             </Empty>
+
+            <div class="my-auto" v-if="!tagged">
+                <LoadingAnimation />
+            </div>
         </div>
     </AsideContents>
 </template>

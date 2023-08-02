@@ -12,6 +12,7 @@ import { useForm } from '@inertiajs/vue3';
 import { watchEffect } from 'vue';
 import TagCard from './TagCard.vue';
 import AddedTags from './AddedTags.vue';
+import axios from 'axios';
 
 const storeLayout = useLayoutStore()
 
@@ -22,7 +23,8 @@ const props = defineProps({
 })
 
 const emits = defineEmits([
-    'handleClose'
+    'handleClose',
+    'addedNew'
 ])
 
 const search = ref(null)
@@ -33,6 +35,7 @@ const addOfficeForm = useForm({
     filters: []
 })
 const isNext = ref(false)
+const load = ref(false)
 
 const getSearches = async (val) => {
     searchValue.value = val
@@ -40,8 +43,13 @@ const getSearches = async (val) => {
     if(!val || val.trim() == '') return search.value = null;
     search.value = 1
 
-    let getSearch = await axios.post(route('or_search', [val, props.excludes]))
+    let getSearch = await axios.post(route('or_search', [val, props.excludes]), {
+        record: props.record.id
+    })
     let response = getSearch.data
+    response = response.filter(val => {
+        if(val) return val
+    })
 
     response.forEach((res, index) => {
         if(addOfficeForm.filters.includes(res.id)){
@@ -74,13 +82,14 @@ const removeOffice = (index) => {
 }
 
 const submit = () => {
-    addOfficeForm.post(route('or_new'), {
-        onSuccess: page => {
-            emits('handleClose')
-        },
-        onError: page => {
-            console.log(page)
-        }
+    load.value = true
+    axios.post(route('or_new'), {
+        ...addOfficeForm
+    }).then(res => {
+        console.log(res.data)
+        emits('addedNew', res.data)
+        emits('handleClose')
+        load.value = false
     })
 }
 
@@ -100,93 +109,98 @@ watchEffect(() => {
         :show="show"
         max-width="md"
     >
-        <div class="p-4 pr-3.5 relative">
-            
+        <div class="p-4 pr-3.5 " >
+
             <div class="mb-4 text-lg">
                 Add office to " {{ record.name }} "
             </div>
 
-            <div v-if="!isNext">
-                <div class="flex mb-3 pr-0.5">
-                    <SearchInput :searchVal="searchValue" @handleSearch="debounces" searchLabels="office" />
+            <div class="relative">
+                <div class="top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 absolute z-10" v-if="load">
+                    <LoadingAnimationVue />
                 </div>
+                <div :class="{'pointer-events-none opacity-30':load}">
+                    <div v-if="!isNext">
+                        <div class="flex mb-3 pr-0.5">
+                            <SearchInput :searchVal="searchValue" @handleSearch="debounces" searchLabels="office" />
+                        </div>
 
-                <div class="flex flex-wrap mbt3 mb-5 border border-slate-700/20 rounded-lg p-1 max-h-[10rem] overflow-y-auto" v-if="addOfficeForm.offices.length > 0">
-                    <AddedTags 
-                        v-for="(item, index) in addOfficeForm.offices"
-                        :index="index"
-                        :item="item"
-                        @handle-remove-office="removeOffice(index)"
-                    />
-                </div>
-                
-                <div class="h-[20rem] flex flex-col overflow-y-hidden">
-                    <div class="grow overflow-y-auto pr-0.5" v-if="search !== 2 && search && search !== 1">
-                        <div class="bg-slate-100/80 rounded-2xl overflow-hidden">
-                            <TagCard 
-                                v-for="(item, index) in search" :key="index"
-                                @handle-get-office="getOffice(item, index)"
+                        <div class="flex flex-wrap mbt3 mb-5 border border-slate-700/20 rounded-lg p-1 max-h-[10rem] overflow-y-auto" v-if="addOfficeForm.offices.length > 0">
+                            <AddedTags 
+                                v-for="(item, index) in addOfficeForm.offices"
                                 :index="index"
-                                :last-element="(index !== search.length-1)"
                                 :item="item"
+                                @handle-remove-office="removeOffice(index)"
                             />
                         </div>
-                    </div>
+                        
+                        <div class="h-[20rem] flex flex-col overflow-y-hidden">
+                            <div class="grow overflow-y-auto pr-0.5" v-if="search !== 2 && search && search !== 1">
+                                <div class="bg-slate-100/80 rounded-2xl overflow-hidden">
+                                    <TagCard 
+                                        v-for="(item, index) in search" :key="index"
+                                        @handle-get-office="getOffice(item, index)"
+                                        :index="index"
+                                        :last-element="(index !== search.length-1)"
+                                        :item="item"
+                                    />
+                                </div>
+                            </div>
 
-                    <div class="my-auto mx-auto" v-if="(search && search == 2) || !search">
-                        <Empty :label="search == 2 ? 'No results found' : 'Start Searching'">
-                            <SearchIcon size="max" />
-                        </Empty>
-                    </div>
+                            <div class="my-auto mx-auto" v-if="(search && search == 2) || !search">
+                                <Empty :label="search == 2 ? 'No results found' : 'Start Searching'">
+                                    <SearchIcon size="max" />
+                                </Empty>
+                            </div>
 
-                    <div class="my-auto" v-if="search == 1">
-                        <LoadingAnimationVue />
-                    </div>
-                </div>
-
-                
-            </div>
-
-            <div class="h-[25rem] flex flex-col overflow-y-hidden mt-5" v-else>
-                <div class="grow overflow-y-auto pr-0.5">
-                    <div class="rounded-xl flex flex-col p-3 borde r border-slate-700/20 bg-gray-100 mt-2 text-sm" v-for="(item, index) in addOfficeForm.offices" :key="index">
-                        <div class="mb-2 text-base  ">
-                            {{ item.name }}
-                        </div>
-                        <div class="mt-auto w-full">
-                            <div>Due</div>
-                            <input type="date" name="" id="" v-model="item.due" class="text-sm rounded-lg w-full mt-1 border-gray-300 focus:border-green-500 focus:ring-green-600 ring-insest">
+                            <div class="my-auto" v-if="search == 1">
+                                <LoadingAnimationVue />
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="flex flex-row-reverse justify-between mt-3 pr-0.5">
-                <div class="w-fit">
-                    <SecondaryButton
-                        @click="$emit('handleClose')"
-                        :disabled="addOfficeForm.processing"
-                    >
-                        Cancel
-                    </SecondaryButton>
+                    <div class="h-[25rem] flex flex-col overflow-y-hidden mt-5" v-else>
+                        <div class="grow overflow-y-auto pr-0.5">
+                            <div class="rounded-xl flex flex-col p-3 borde r border-slate-700/20 bg-gray-100 mt-2 text-sm" v-for="(item, index) in addOfficeForm.offices" :key="index">
+                                <div class="mb-2 text-base  ">
+                                    {{ item.name }}
+                                </div>
+                                <div class="mt-auto w-full">
+                                    <div>Due</div>
+                                    <input type="date" name="" id="" v-model="item.due" class="text-sm rounded-lg w-full mt-1 border-gray-300 focus:border-green-500 focus:ring-green-600 ring-insest">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <PrimaryButton
-                        class="ml-3"
-                        :disabled="addOfficeForm.offices.length === 0 || addOfficeForm.processing"
-                        @click="submit"
-                    >
-                        Add office
-                    </PrimaryButton>
+                    <div class="flex flex-row-reverse justify-between mt-3 pr-0.5">
+                        <div class="w-fit">
+                            <SecondaryButton
+                                @click="$emit('handleClose')"
+                                :disabled="addOfficeForm.processing"
+                            >
+                                Cancel
+                            </SecondaryButton>
+
+                            <PrimaryButton
+                                class="ml-3"
+                                :disabled="addOfficeForm.offices.length === 0 || addOfficeForm.processing"
+                                @click="submit"
+                            >
+                                Add office
+                            </PrimaryButton>
+                        </div>
+                        
+                        <button 
+                            class="capsule hover:bg-gray-100 transition-150 text-xs font-medium px-6 
+                            disabled:opacity-40 disabled:pointer-events-none select-none" 
+                            v-if="addOfficeForm.offices.length !== 0"
+                            @click="isNext = !isNext"
+                        >
+                            {{ isNext ? 'Back':'Next' }}
+                        </button>
+                    </div>
                 </div>
-                
-                <button 
-                    class="capsule hover:bg-gray-100 transition-150 text-xs font-medium px-6 
-                    disabled:opacity-40 disabled:pointer-events-none select-none" 
-                    v-if="addOfficeForm.offices.length !== 0"
-                    @click="isNext = !isNext"
-                >
-                    {{ isNext ? 'Back':'Next' }}
-                </button>
             </div>
         </div>
     </Modal>

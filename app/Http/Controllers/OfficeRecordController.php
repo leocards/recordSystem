@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Offices\SearchController;
+use App\Models\Office;
 use App\Models\OfficeRecord;
 use App\Models\Record;
 use Illuminate\Http\Request;
@@ -13,21 +14,28 @@ class OfficeRecordController extends Controller
 
     public function add_records_to_office(Request $request)
     {
-        
+        sleep(10);
         try {
-            DB::transaction(function () use ($request) {
+            $added = collect([]);
+            DB::transaction(function () use ($request, $added) {
                 foreach ($request->offices as $key => $value) {
-                    OfficeRecord::create([
+                    $add = OfficeRecord::create([
                         'record_id' => $request->record,
                         'office_id' => $value['id'],
                         'Due' => $value['due']
                     ]);
+                    $office = Office::find($value['id']);
+                    $added->push(collect([
+                        'id' => $add->id,
+                        'name' => $office->name,
+                        'Due' => $add->Due
+                    ]));
                 }
             });
-            return back();
+
+            return response()->json($added);
         } catch (\Throwable $th) {
-            dd($th->getMessage());
-            return back();
+            return response()->json($th->getMessage());
         }
     }
 
@@ -51,7 +59,7 @@ class OfficeRecordController extends Controller
                         $setOffice = $office->getOfficesTagged;
                         
                         return collect([
-                            'id' => $setOffice->id,
+                            'id' => $office->id,
                             'name' => $setOffice->name  
                         ]);
                     })
@@ -61,9 +69,17 @@ class OfficeRecordController extends Controller
         }
     }
 
-    public function edit(OfficeRecord $officeRecord)
+    public function deleteTag(Request $request)
     {
-        //
+        try {
+
+            OfficeRecord::find($request->id)->delete();
+
+            return response()->json();
+
+        } catch (\Throwable $th) {
+            return response()->json($th->getMessage());
+        }
     }
 
     public function update(Request $request, OfficeRecord $officeRecord)

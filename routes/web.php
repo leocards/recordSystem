@@ -61,6 +61,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/getTaggedOffice/{officeRecord}', 'get_tagged_office')->name('or_taaged_office');
             Route::post('/search/{search?}/ex/{excludes?}', 'search')->name('or_search');
             Route::post('/new', 'add_records_to_office')->name('or_new');
+            Route::post('/deleteTag', 'deleteTag')->name('or_deleteTag');
         });
     });
 

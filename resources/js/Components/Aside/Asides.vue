@@ -8,16 +8,29 @@ import Track from '@/Components/Aside//Track.vue';
 import AsideTransitions from './AsideTransitions.vue';
 import AddOffice from './TagOffice/AddOffice.vue';
 import { ref } from 'vue';
-import AddPersonel from '@/Components/Aside/Personnel/AddPersonel.vue' 
+import AddPersonel from '@/Components/Aside/Personnel/AddPersonel.vue'
+import { useForm } from '@inertiajs/vue3';
 
 const storeLayout = useLayoutStore()
 
 const isAddOffice = ref(false)
 const isAddPersonnel = ref(false)
 const excludeTags = ref([])
+const added = useForm({
+    hasNew: false,
+    new: []
+})
 
 const getExcludeTagged = ex => {
     excludeTags.value = ex
+}
+const getAddedTagOffice = val => {
+    added.hasNew = true,
+    added.new = val
+
+    setTimeout(() => {
+        added.reset()
+    }, 500)
 }
 
 </script>
@@ -43,6 +56,7 @@ const getExcludeTagged = ex => {
                     @handleAdd="isAddOffice = true"
                     @handleExcludes="getExcludeTagged"
                     :record="storeLayout.selectedItem.item"
+                    :added="added"
                 />
             </div>
         </AsideTransitions>
@@ -59,10 +73,12 @@ const getExcludeTagged = ex => {
         :record="storeLayout.selectedItem.item"
         :excludes="excludeTags"
         @handleClose="isAddOffice = false"
+        @addedNew="getAddedTagOffice"
     />
     <AddPersonel 
         :show="isAddPersonnel"
         :personnel="storeLayout.selectedItem.item"
         @handleClose="isAddPersonnel = false"
     />
+
 </template>
